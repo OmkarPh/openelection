@@ -7,12 +7,15 @@ const title = "CR";
 
 contract("Election", function(accounts){
     describe("Election", ()=>{
-
         it("initializes with correct default values", async ()=>{
             let instance = await Election.deployed();
-            let candidateCount = await instance.candidateCount();
-            assert.equal(defaultCandidates.length, candidateCount);
-        })
-
+            
+            for(let i=0; i<defaultCandidates.length; i++)
+                assert.equal(defaultCandidates[i], await instance.candidates(i));                
+            assert.equal(defaultCandidates.length, await instance.candidateCount());
+            assert.equal(title, await instance.title());
+            assert.equal(defaultStartTime, await instance.startTime());
+            assert.equal(defaultEndTime, await instance.endTime());
+        });
     });
 })
