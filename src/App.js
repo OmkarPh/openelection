@@ -1,18 +1,20 @@
 import './App.css';
 import {Helmet} from 'react-helmet';
+import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom'
 import {Container} from 'react-bootstrap';
 
+import Header from './components/Header';
 import Listing from './components/Listing';
 
 function App() {
   return (
-    <Container>
-      <Helmet title="Open Election" />
-          <h4>
-            Ethereum smart contract based dApp to conduct elections without central authority. (Except configuration)
-          </h4> 
-          <Listing />
-    </Container>
+    <Router class="coverer">
+      <Header />
+      <Switch>
+        <Route path='/' component={Listing} exact />
+      </Switch>
+
+    </Router>
   )
 }
 export default App;

@@ -8799,8 +8799,8 @@
         }
       },
       "links": {},
-      "address": "0xb1eC42955e7a976a1b4aCA105caFc510490684Cd",
-      "transactionHash": "0x7cee4eccf39dc292213b8906c5de1d585d79cdbaaddcf6ef9a3c88f675cde696"
+      "address": "0xaF4F9BaBc8bc8Ff19c7c9484cad58Bcc17c2E560",
+      "transactionHash": "0xa8ae82e55836b7b8b7f4c7046d117a051ab5a51ad75ee30be216392b8c0c0bda"
     },
     "5777": {
       "events": {
@@ -8830,7 +8830,7 @@
     }
   },
   "schemaVersion": "3.3.4",
-  "updatedAt": "2021-03-30T07:05:22.233Z",
+  "updatedAt": "2021-03-31T05:20:49.941Z",
   "networkType": "ethereum",
   "devdoc": {
     "details": "Store & retrieve value in a variable",
