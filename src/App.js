@@ -5,6 +5,7 @@ import {Container} from 'react-bootstrap';
 
 import Header from './components/Header';
 import Listing from './components/Listing';
+import Admin from './components/Admin';
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
       <Header />
       <Switch>
         <Route path='/' component={Listing} exact />
+        <Route path='/admin' component={Admin} exact />
       </Switch>
 
     </Router>

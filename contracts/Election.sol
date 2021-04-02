@@ -54,7 +54,7 @@ contract Election is Ownable {
     }
     
     function restart(string[] memory newCandidates, uint  electionStartTime, uint electionEndTime, string memory _title)  public onlyOwner{
-        require(block.timestamp >= endTime, "Cannot start new election until previous election ends !");
+        require(block.timestamp * 1000 >= endTime, "Cannot start new election until previous election ends !");
         
         clear();
         
@@ -77,7 +77,7 @@ contract Election is Ownable {
     
     function reset() external onlyOwner{
         
-        require(block.timestamp >= endTime, "Cannot reset until previous election ends !");
+        require(block.timestamp * 1000 >= endTime, "Cannot reset until previous election ends !");
         
         clear();
         
@@ -86,19 +86,19 @@ contract Election is Ownable {
         candidateCount = 0;
         leaderBoardStatus = false;
         
-        startTime = block.timestamp;
-        endTime = block.timestamp;
+        startTime = block.timestamp * 1000;
+        endTime = block.timestamp * 1000;
     }
 
     function vote(string memory candidateName) public{
         require(voteCounts[candidateName] != 0, "Candidate not included in the list !");
-        require(block.timestamp >= startTime, "Election not started yet !");
-        require(block.timestamp <= endTime, "Election timed out !");
+        require(block.timestamp * 1000 >= startTime, "Election not started yet !");
+        require(block.timestamp * 1000 <= endTime, "Election timed out !");
         voteCounts[candidateName]++;
     }
     
     function displayLeaderboard() external onlyOwner{
-        require(block.timestamp >= endTime, "Election must end before displaying leaderBoard !");
+        require(block.timestamp * 1000 >= endTime, "Election must end before displaying leaderBoard !");
         require(!leaderBoardStatus, "Leaderboard already active !");
         for(uint i=0; i<candidates.length; i++){
             leaderBoard[candidates[i]] = voteCounts[candidates[i]];
