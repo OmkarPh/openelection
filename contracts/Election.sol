@@ -81,7 +81,7 @@ contract Election is Ownable {
         
         clear();
         
-        title = "No election going on";
+        title = "No election going on"; 
         
         candidateCount = 0;
         leaderBoardStatus = false;
