@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Container, Button, Form, FormGroup} from 'react-bootstrap';
+import {Container, Button, Form, FormGroup, Modal} from 'react-bootstrap';
 import web3 from '../web3';
 import Election from '../Election';
 
@@ -7,9 +7,22 @@ import Loader from './Loader';
 import HashLoader from 'react-spinners/HashLoader';
 
 import Info from './Info';
+import CandidateInput from './CandidateInput';
 
 const Admin = () => {
     const [details, setDetails] = useState(undefined);
+
+    const [preparingResults, setPreparingResults] = useState(false);
+    const [canPrepareResults, setCanPrepareResults] = useState(true);
+    const [resetting, setResetting] = useState(false);
+
+    const [showModal, setShowModal] = useState(false);
+    const [modalDetails, setModal] = useState({title: 'Error !!', message: 'Error message'});
+    const setModalDetails = (title, message="") => {
+        setModal({title, message});
+        setShowModal(true);
+    };
+
 
     async function fetchDetails(apiConfig){
         const electionDetails = {
@@ -29,20 +42,46 @@ const Admin = () => {
             electionDetails.status = "Election ended";
             electionDetails.statusColor = "red";
         }
-        console.log(electionDetails);
+
+        if(electionDetails.resultsOut)
+            setCanPrepareResults(false);
+        else if(Date.now() < electionDetails.endTime)
+            setCanPrepareResults(false);
+
         setDetails(electionDetails);
     }
 
     async function prepareResults(){
         try{
+            setPreparingResults(true);
             let account = (await web3.eth.getAccounts())[0];
             await Election.methods.displayLeaderboard().send({from: account});
-            console.log('Preparing leaderboard...');
+            setPreparingResults(false);
+            window.location.reload();
         }catch(error){
             console.log(error);
-            console.log(error.message);
-            console.log(typeof error.message);
-            alert(error.message.split('\n')[0]);
+            if(error.code && error.code === 4001)
+                setModalDetails("Permission denied !", error.message);
+            else
+                setModalDetails("Request rejected by contract", error.message.split('\n')[0]);
+            setPreparingResults(false);
+        }
+    }
+
+    async function resetEverything(){
+        try{
+            setResetting(true);
+            let account = (await web3.eth.getAccounts())[0];
+            await Election.methods.reset().send({from: account});
+            setResetting(false);
+            window.location.reload();
+        }catch(error){
+            console.log(error);
+            if(error.code && error.code === 4001)
+                setModalDetails("Permission denied !", error.message);
+            else
+                setModalDetails("Request rejected by contract", error.message.split('\n')[0]);
+            setResetting(false);
         }
     }
 
@@ -54,32 +93,54 @@ const Admin = () => {
                 gas: 200000,
                 gasPrice: 200000
             }
-
             await fetchDetails(callConfig);
         }
         fetch();
     }, []);
 
+    console.log(details);
     return (
         details ?
         <Container>
             <br/>
             <Info details={details} />
-            Leader board status: {}
-            <Button onClick={()=>prepareResults()}>
-                Prepare leaderboard
+            Leader board status: &nbsp;&nbsp;
+            <span style={{color:details.statusColor}}>
+               {details.status}
+            </span>
+            <br/><br/>
+
+            <Button onClick={prepareResults} disabled={preparingResults || !canPrepareResults}>
+                {
+                    preparingResults ? "Preparing results..." : "Prepare results"
+                }                
             </Button>
-            <br/>
-            <Button>
-                Reset everything
-            </Button>
-            <br/>
-            <FormGroup>
-            
-            </FormGroup>
-            <Button>
-                Restart Election
-            </Button>
+            <br/><br/>
+            {
+                details.resultsOut ?
+                    <>
+                        <Button onClick={resetEverything} disabled={resetting}>
+                            {
+                                resetting ? "Resetting in progress ..." : "Reset everything"
+                            }
+                            <br/>
+                        </Button>
+                        <CandidateInput />
+                    </>
+                : 
+                "Previous election results must be processed to reset / restart a new election"
+            }
+            <Modal show={showModal} onHide={()=>setShowModal(false)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>{modalDetails.title}</Modal.Title>
+                </Modal.Header>
+                    <Modal.Body>{modalDetails.message}</Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={()=>setShowModal(false)}>
+                        Close
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
         :
         <Loader>
