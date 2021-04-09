@@ -2,8 +2,8 @@ const HDWalletProvider = require("truffle-hdwallet-provider");
 const dotenv = require('dotenv');
 dotenv.config();
 
-const mnemonic = process.env.MNEMONIC;
-const infura_access_token = process.env.INFURA_ACCESS_TOKEN;
+const mnemonic = process.env.REACT_APP_MNEMONIC;
+const infura_access_token = process.env.REACT_APP_INFURA_ACCESS_TOKEN;
 
 module.exports = {
   contracts_build_directory: "./src/contractBuild",

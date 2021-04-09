@@ -39,6 +39,10 @@ const Listing = () => {
             electionDetails.status = "Election ended";
             electionDetails.statusColor = "red";
         }
+        if(electionDetails.resultsOut){
+            electionDetails.status = "Results out";
+            electionDetails.statusColor = "green";
+        }
         setElection(electionDetails);
         return electionDetails.totalCandidates;
     }

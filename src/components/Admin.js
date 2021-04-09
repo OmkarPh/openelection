@@ -15,7 +15,8 @@ const Admin = () => {
     const [preparingResults, setPreparingResults] = useState(false);
     const [canPrepareResults, setCanPrepareResults] = useState(true);
     const [resetting, setResetting] = useState(false);
-
+    const [restarting, setRestarting] = useState(false);
+    
     const [showModal, setShowModal] = useState(false);
     const [modalDetails, setModal] = useState({title: 'Error !!', message: 'Error message'});
     const setModalDetails = (title, message="") => {
@@ -41,6 +42,10 @@ const Admin = () => {
         }else if(Date.now() > electionDetails.endTime){
             electionDetails.status = "Election ended";
             electionDetails.statusColor = "red";
+        }
+        if(electionDetails.resultsOut){
+            electionDetails.status = "Results out";
+            electionDetails.statusColor = "green";
         }
 
         if(electionDetails.resultsOut)
@@ -85,8 +90,27 @@ const Admin = () => {
         }
     }
 
+    async function restartElection({title, candidates, startTime, endTime}){
+        console.log({title, candidates, startTime, endTime});
+        try{
+            setRestarting(true);
+            let account = (await web3.eth.getAccounts())[0];
+            await Election.methods.restart(candidates, startTime, endTime, title).send({from: account});
+            setRestarting(false);
+            setModalDetails("Election started successfully", "Restarted election with new details");
+            // setTimeout(window.location.reload, 2000);
+        }catch(error){
+            console.log(error);
+            if(error.code && error.code === 4001)
+                setModalDetails("Permission denied !", error.message);
+            else
+                setModalDetails("Request rejected by contract", error.message.split('\n')[0]);
+            setRestarting(false);
+        }
+    }
+
     useEffect(()=>{
-        async function fetch(){
+        async function fetchInfo(){
             const accounts = await web3.eth.getAccounts();
             const callConfig = {
                 from: accounts[0],
@@ -95,7 +119,7 @@ const Admin = () => {
             }
             await fetchDetails(callConfig);
         }
-        fetch();
+        fetchInfo();
     }, []);
 
     console.log(details);
@@ -125,7 +149,9 @@ const Admin = () => {
                             }
                             <br/>
                         </Button>
-                        <CandidateInput />
+                        <CandidateInput
+                            submitElection={restartElection}
+                            restarting={restarting}/>
                     </>
                 : 
                 "Previous election results must be processed to reset / restart a new election"

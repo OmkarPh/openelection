@@ -2,7 +2,7 @@ import React, {useState} from 'react'
 import {Container, Button, Form, FormGroup, Modal} from 'react-bootstrap';
 import DateTimePicker from 'react-datetime-picker';
 
-const CandidateInput = ({returnNewElectionDetails}) => {
+const CandidateInput = ({submitElection, restarting}) => {
 
     const [title, setTitle] = useState("");
     const [startTime, setStartTime] = useState(new Date());
@@ -20,11 +20,15 @@ const CandidateInput = ({returnNewElectionDetails}) => {
         setNewCandidates(candidates => [...candidates, newCandidate]);
         setCandidateUsername('');
     }
+    const removeCandidate = (candidate) => {
+        if(candidate === "")
+            return alert('Invalid username provided !!');
+        console.log('Removing');
+        setNewCandidates(candidates => candidates.filter(username => username !== candidate));
+    }
 
     const submitForm = () => {
-        console.log('Hello');
-        // returnNewElectionDetails({
-        console.log({
+        submitElection({
             title,
             candidates: newCandidates,
             startTime: startTime.getTime(),
@@ -35,7 +39,10 @@ const CandidateInput = ({returnNewElectionDetails}) => {
 
     return (
         <Container>
-            <Form onSubmit={submitForm}>
+            <Form onSubmit={e=>{
+                // submitForm();
+                e.preventDefault();
+            }}>
                 <FormGroup className="p-3">
                     Election title: 
                     <Form.Control 
@@ -49,8 +56,14 @@ const CandidateInput = ({returnNewElectionDetails}) => {
                         value={candidateUsername}
                         onChange={e => setCandidateUsername(e.target.value)}
                         type="text" 
-                        placeholder="Enter candidate's username" 
-                        required />
+                        placeholder="Enter candidate's username"
+                        onKeyDown={e => {
+                            if(e.key === 'Enter'){
+                                addNewCandidate();
+                                e.preventDefault();
+                            }
+                        }} 
+                    />
                     <Button 
                         onClick={addNewCandidate}
                         variant="success">
@@ -60,7 +73,10 @@ const CandidateInput = ({returnNewElectionDetails}) => {
                         {
                             newCandidates.map(newCandidate => {
                                 return (
-                                    <li>{newCandidate}</li>
+                                    <li>
+                                        {newCandidate} &nbsp;&nbsp;
+                                        <button onClick={()=>removeCandidate(newCandidate)}>Remove</button> 
+                                    </li>
                                 );
                             })
                         }
